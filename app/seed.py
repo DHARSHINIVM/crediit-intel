@@ -9,7 +9,6 @@ SAMPLE_ISSUERS = [
 ]
 
 SAMPLE_FUNDAMENTALS = [
-    # name, report_date, revenue, ebitda, total_debt
     ("Acme Industries", date(2024, 12, 31), 1250.5, 210.2, 450.0),
     ("Acme Industries", date(2025, 3, 31), 310.4, 52.1, 440.0),
     ("Bharat Power Ltd", date(2024, 12, 31), 980.2, 150.3, 700.0),
@@ -17,19 +16,14 @@ SAMPLE_FUNDAMENTALS = [
 ]
 
 def seed_if_empty(db: Session) -> None:
-    """
-    Insert sample data if tables are empty. Idempotent on empty -> filled.
-    """
     if db.query(models.Issuer).count() == 0:
-        # Insert issuers and keep name->id mapping
         name_to_id = {}
         for row in SAMPLE_ISSUERS:
             obj = models.Issuer(**row)
             db.add(obj)
-            db.flush()  # obtain obj.id before commit
+            db.flush()
             name_to_id[row["name"]] = obj.id
 
-        # Insert fundamentals referencing issuer ids
         for name, rdate, rev, ebitda, debt in SAMPLE_FUNDAMENTALS:
             issuer_id = name_to_id.get(name)
             if issuer_id:
